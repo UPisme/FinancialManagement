@@ -4,74 +4,74 @@ import React from 'react';
 import { 
   Box, 
   Typography, 
-  Container, 
-  Button, 
-  Paper, 
-  AppBar, 
-  Toolbar, 
-  Avatar
+  Grid,
+  Paper,
+  Button,
+  useTheme
 } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import SummaryCards from '@/components/dashboard/SummaryCards';
+import RecentTransactions from '@/components/dashboard/RecentTransactions';
+import BudgetProgress from '@/components/dashboard/BudgetProgress';
+import { Add as AddIcon } from '@mui/icons-material';
 
 export default function Dashboard() {
-  const router = useRouter();
-  const { user, logout } = useAuth();
-  console.log(user);
-  
-
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
+  const { user } = useAuth();
+  const theme = useTheme();
 
   return (
-    <ProtectedRoute>
-      <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Dashboard
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="body1">
-                {user?.username}
-              </Typography>
-              <Avatar sx={{ bgcolor: 'secondary.main' }}>
-                {user?.username?.charAt(0).toUpperCase()}
-              </Avatar>
-              <Button color="inherit" onClick={handleLogout}>
-                Logout
-              </Button>
-            </Box>
-          </Toolbar>
-        </AppBar>
-        
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
-          <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h4" gutterBottom>
-              Welcome back, {user?.username}!
-            </Typography>
-            <Typography variant="body1">
-              This is a protected page. Only authenticated users can see this content.
+    <>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box>
+          <Typography variant="h4" gutterBottom fontWeight="bold">
+            Dashboard
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Welcome back, {user?.username}! Here's your financial overview.
+          </Typography>
+        </Box>
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />}
+          sx={{ 
+            borderRadius: 2,
+            boxShadow: theme.shadows[2],
+            px: 3
+          }}
+        >
+          Add Expense
+        </Button>
+      </Box>
+
+      {/* Summary Cards */}
+      <SummaryCards />
+      
+      {/* Main Content Grid */}
+      <Grid container spacing={3} sx={{ mt: 1 }}>
+        {/* Left Column - Recent Transactions */}
+        <Grid item xs={12} md={8}>
+          <RecentTransactions />
+          
+          {/* Expense Distribution Chart - Placeholder */}
+          <Paper elevation={2} sx={{ p: 2, borderRadius: 2, mt: 3, height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Typography variant="h6" color="text.secondary">
+              Expense Distribution Chart
             </Typography>
           </Paper>
+        </Grid>
+        
+        {/* Right Column - Budget Progress */}
+        <Grid item xs={12} md={4}>
+          <BudgetProgress />
           
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3 }}>
-            {[1, 2, 3].map((item) => (
-              <Paper key={item} elevation={2} sx={{ p: 3, height: '100%' }}>
-                <Typography variant="h6" gutterBottom>
-                  Dashboard Card {item}
-                </Typography>
-                <Typography variant="body2">
-                  This is a sample dashboard card. In a real application, this would display relevant user data or application features.
-                </Typography>
-              </Paper>
-            ))}
-          </Box>
-        </Container>
-      </Box>
-    </ProtectedRoute>
+          {/* Upcoming Bills - Placeholder */}
+          <Paper elevation={2} sx={{ p: 2, borderRadius: 2, mt: 3, height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Typography variant="h6" color="text.secondary">
+              Upcoming Bills
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+    </>
   );
 }
