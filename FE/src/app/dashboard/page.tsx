@@ -39,7 +39,7 @@ export default function Dashboard() {
             px: 3
           }}
         >
-          Add Expense
+          Add Transaction
         </Button>
       </Box>
 
@@ -49,21 +49,20 @@ export default function Dashboard() {
       {/* Main Content Grid */}
       <Grid container spacing={3} sx={{ mt: 1 }}>
         {/* Left Column - Recent Transactions */}
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={8} component={"div" as React.ElementType}>
           <RecentTransactions />
-          
           {/* Expense Distribution Chart - Placeholder */}
           <Paper elevation={2} sx={{ p: 2, borderRadius: 2, mt: 3, height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <Typography variant="h6" color="text.secondary">
+            <Typography variant="h6" color="t
+            ext.secondary">
               Expense Distribution Chart
             </Typography>
           </Paper>
         </Grid>
         
         {/* Right Column - Budget Progress */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={4} component={"div" as React.ElementType}>
           <BudgetProgress />
-          
           {/* Upcoming Bills - Placeholder */}
           <Paper elevation={2} sx={{ p: 2, borderRadius: 2, mt: 3, height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <Typography variant="h6" color="text.secondary">

@@ -35,7 +35,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       if (!user && !hasToken()) {
         console.log('ProtectedRoute - Authentication required, redirecting to login');
         setRedirecting(true);
-        router.push('/login');
+        router.push('/auth/login');
       } else {
         console.log('ProtectedRoute - Authentication verified, rendering content');
       }
@@ -61,7 +61,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <Typography variant="body1">You need to be logged in to view this page</Typography>
-        <Button variant="contained" color="primary" onClick={() => router.push('/login')} sx={{ mt: 2 }}>
+        <Button variant="contained" color="primary" onClick={() => router.push('/auth/login')} sx={{ mt: 2 }}>
           Go to Login
         </Button>
       </Box>

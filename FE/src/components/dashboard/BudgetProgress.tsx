@@ -77,7 +77,7 @@ export default function BudgetProgress() {
       
       <Grid container spacing={2}>
         {budgetCategories.map((item, index) => (
-          <Grid item xs={12} key={index}>
+          <Grid item xs={12} key={index} component={"div" as React.ElementType}>
             <Box sx={{ mb: 1 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                 <Typography variant="body2" fontWeight="medium">

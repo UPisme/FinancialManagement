@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { 
   AppBar, 
@@ -12,7 +10,8 @@ import {
   MenuItem, 
   Tooltip,
   Badge,
-  useTheme
+  useTheme,
+  Button
 } from '@mui/material';
 import { 
   Menu as MenuIcon,
@@ -43,8 +42,13 @@ export default function Header({ open, onToggle }: HeaderProps) {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    router.push('/auth/login');
     handleClose();
+  };
+
+  // Hàm điều hướng về Dashboard
+  const handleGoToDashboard = () => {
+    router.push('/dashboard');
   };
 
   return (
@@ -67,11 +71,17 @@ export default function Header({ open, onToggle }: HeaderProps) {
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Expense Manager
-        </Typography>
+
+        <Button 
+          onClick={handleGoToDashboard} 
+          sx={{ textTransform: 'none', color: 'inherit' }}
+        >
+          <Typography variant="h6" noWrap component="div">
+            Wallet Wizard
+          </Typography>
+        </Button>
         
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1, justifyContent: 'flex-end' }}>
           <Tooltip title="Notifications">
             <IconButton color="inherit" sx={{ mr: 1 }}>
               <Badge badgeContent={4} color="error">
@@ -111,7 +121,6 @@ export default function Header({ open, onToggle }: HeaderProps) {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
               <MenuItem onClick={handleClose}>My account</MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>

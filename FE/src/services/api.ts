@@ -65,5 +65,77 @@ export const authService = {
 };
 
 
+// wallets
+export const walletService = {
+  // Get active wallets
+  getWallets: async () => {
+    try {
+      const response = await api.get('/wallets/');
+      return response.data.wallets || [];
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Get deleted wallets
+  getDeletedWallets: async () => {
+    try {
+      const response = await api.get('/wallets/deleted');
+      return response.data.deleted_wallets || []; 
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Create new wallet
+  createWallet: async (data: { name: string; balance: number; currency: string }) => {
+    try {
+      const response = await api.post('/wallets/create', data);
+      if (!response.data.wallet?.id) {
+        throw new Error('API returned wallet without ID');
+      }
+      return response.data.wallet;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Update wallet
+  updateWallet: async (id: string, data: { name: string; balance: number; currency: string }) => {
+    try {
+      const response = await api.put(`/wallets/update/${id}`, data);
+      if (!response.data.wallet?.id) {
+        throw new Error('API returned wallet without ID');
+      }
+      return response.data.wallet;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Soft delete wallet
+  deleteWallet: async (id: string) => {
+    try {
+      await api.patch(`/wallets/soft_delete/${id}`);
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Restore wallet
+  restoreWallet: async (id: string) => {
+    try {
+      await api.patch(`/wallets/restore/${id}`);
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  }
+};
 
 export default api;

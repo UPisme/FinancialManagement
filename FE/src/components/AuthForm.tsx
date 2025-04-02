@@ -196,7 +196,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading, error })
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography variant="body2">
               {type === 'login' ? "Don't have an account? " : "Already have an account? "}
-              <MuiLink component={Link} href={type === 'login' ? '/register' : '/login'}>
+              <MuiLink component={Link} href={type === 'login' ? '/auth/register' : '/auth/login'}>
                 {type === 'login' ? 'Sign Up' : 'Sign In'}
               </MuiLink>
             </Typography>

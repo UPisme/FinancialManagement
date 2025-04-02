@@ -35,6 +35,11 @@ class WalletService:
             if existing_wallet:
                 logger.warning(f'Wallet name {data["name"]} already exists')
                 return {'message': 'Wallet name already exists', 'status_code': 409}
+
+            # Kiem tra balance
+            if 'balance' in data and data['balance'] < 0:
+                logger.warning(f'Balance must not be less than 0')
+                return {'message': 'Balance must not be less than 0', 'status_code': 400}
             
             # Kiểm tra currency hợp lệ
             valid_currencies = ['VND', 'USD', 'CNY', 'KRW']
@@ -73,6 +78,7 @@ class WalletService:
             return {
                 'message': 'Wallet created successfully',
                 'wallet': {
+                    'id': new_wallet.id,
                     'name': new_wallet.name,
                     'balance': float(new_wallet.balance),
                     'currency': new_wallet.currency
@@ -95,7 +101,7 @@ class WalletService:
                 'id': w.id,
                 'name': w.name,
                 'balance': w.balance,
-                'currency': w.currentcy
+                'currency': w.currency
             } for w in wallets.items]
             
             # Trả về danh sách ví
@@ -122,12 +128,12 @@ class WalletService:
                 'id': w.id,
                 'name': w.name,
                 'balance': w.balance,
-                'currency': w.currentcy
+                'currency': w.currency
             } for w in deleted_wallets.items]
             
             # Trả về danh sách ví đã xoá
             return {
-                'deleted wallets': deleted_wallets_list,
+                'deleted_wallets': deleted_wallets_list,
                 'page': deleted_wallets.page,
                 'per_page': deleted_wallets.per_page,
                 'total_pages': deleted_wallets.pages,

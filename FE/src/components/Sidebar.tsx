@@ -22,7 +22,10 @@ import {
   BarChart as BarChartIcon,
   Settings as SettingsIcon,
   Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon
+  ChevronLeft as ChevronLeftIcon,
+  Wallet as WalletIcon,
+  Savings as SavingsGoalIcon,
+  AccountBalance as BudgetIcon
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -41,8 +44,11 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
   
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Expenses', icon: <ReceiptIcon />, path: '/dashboard/expenses' },
+    { text: 'Wallets', icon: <WalletIcon />, path: '/dashboard/wallets' },
+    { text: 'Transactions', icon: <ReceiptIcon />, path: '/dashboard/transactions' },
     { text: 'Categories', icon: <CategoryIcon />, path: '/dashboard/categories' },
+    { text: 'Goals', icon: <SavingsGoalIcon />, path: '/dashboard/goals' },
+    { text: 'Budgets', icon: <BudgetIcon />, path: '/dashboard/budgets' },
     { text: 'Reports', icon: <BarChartIcon />, path: '/dashboard/reports' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/dashboard/settings' },
   ];

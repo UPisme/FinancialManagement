@@ -21,7 +21,7 @@ export default function Home() {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    router.push('/auth/login');
   };
 
   if (loading) {
@@ -56,13 +56,13 @@ export default function Home() {
               <Button 
                 variant="contained" 
                 color="primary" 
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/auth/login')}
               >
                 Sign In
               </Button>
               <Button 
                 variant="outlined" 
-                onClick={() => router.push('/register')}
+                onClick={() => router.push('/auth/register')}
               >
                 Create Account
               </Button>

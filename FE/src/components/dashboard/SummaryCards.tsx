@@ -58,7 +58,7 @@ export default function SummaryCards() {
   return (
     <Grid container spacing={3}>
       {summaryData.map((item, index) => (
-        <Grid item xs={12} sm={6} md={3} key={index}>
+        <Grid item xs={12} sm={6} md={3} key={index} component={"div" as React.ElementType}>
           <Paper
             elevation={2}
             sx={{
