@@ -5,9 +5,6 @@ import {
   Typography, 
   Button, 
   useTheme,
-  Grid,
-  Card,
-  CardContent,
   IconButton,
   Dialog,
   DialogTitle,
@@ -22,9 +19,16 @@ import {
   Tab,
   Snackbar,
   Alert,
-  AlertColor
+  AlertColor,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Restore as RestoreIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, Restore as RestoreIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useAuth } from '@/context/AuthContext';
 import { walletService } from '@/services/api';
 
@@ -100,7 +104,7 @@ export default function WalletsPage() {
       isValid = false;
     }
 
-    if (newWallet.balance < 0) {
+    if (!editingWallet && newWallet.balance < 0) {
       newErrors.balance = 'Balance cannot be negative';
       isValid = false;
     }
@@ -119,9 +123,10 @@ export default function WalletsPage() {
           newWallet
         );
         setWallets(wallets.map(w => 
-          w.id === editingWallet.id ? updatedWallet : w
+          w.id === editingWallet.id ? { ...updatedWallet, balance: w.balance } : w
         ));
         showSnackbar('Wallet updated successfully', 'success');
+
       } else {
         const createdWallet = await walletService.createWallet(newWallet);
         setWallets([...wallets, { ...createdWallet, balance: Number(createdWallet.balance) || 0 }]);
@@ -193,9 +198,6 @@ export default function WalletsPage() {
           <Typography variant="h4" gutterBottom fontWeight="bold">
             My Wallets
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {user?.username}'s wallet management
-          </Typography>
         </Box>
         <Button 
           variant="contained" 
@@ -220,68 +222,44 @@ export default function WalletsPage() {
         <Box display="flex" justifyContent="center" my={4}>
           <Typography>Loading...</Typography>
         </Box>
-      ) : currentTab === 0 ? (
-        <Grid container spacing={3}>
-          {wallets.map((wallet) => (
-            <Grid item xs={12} sm={6} md={4} key={wallet.id} component={"div" as React.ElementType}>
-              <Card 
-                sx={{ height: '100%', cursor: 'pointer' }}
-                onClick={() => handleOpenEditDialog(wallet)}
-              >
-                <CardContent>
-                  <Box display="flex" justifyContent="space-between">
-                    <Box>
-                      <Typography variant="h6">{wallet.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {wallet.currency}
-                      </Typography>
-                      <Typography variant="h5" mt={1}>
-                        {wallet.currency} {(wallet.balance ?? 0).toFixed(2)}
-                      </Typography>
-                    </Box>
-                    <IconButton 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteWallet(wallet.id);
-                      }}
-                      color="error"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
       ) : (
-        <Grid container spacing={3}>
-          {deletedWallets.map((wallet) => (
-            <Grid item xs={12} sm={6} md={4} key={wallet.id} component={"div" as React.ElementType}>
-              <Card sx={{ height: '100%' }}>
-                <CardContent>
-                  <Box display="flex" justifyContent="space-between">
-                    <Box>
-                      <Typography variant="h6">{wallet.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {wallet.currency}
-                      </Typography>
-                      <Typography variant="h5" mt={1}>
-                        {wallet.currency} {(wallet.balance ?? 0).toFixed(2)}
-                      </Typography>
-                    </Box>
-                    <IconButton 
-                      onClick={() => handleRestoreWallet(wallet.id)}
-                      color="primary"
-                    >
-                      <RestoreIcon />
-                    </IconButton>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Wallet Name</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Balance</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Currency</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {(currentTab === 0 ? wallets : deletedWallets).map((wallet) => (
+                <TableRow key={wallet.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                  <TableCell component="th" scope="row" sx={{ textAlign: 'center' }}>
+                    {wallet.name}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    {(wallet.balance ?? 0).toFixed(2)}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    {wallet.currency}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>
+                    {currentTab === 0 ? (
+                      <>
+                        <IconButton onClick={() => handleOpenEditDialog(wallet)} color="primary"><EditIcon /></IconButton>
+                        <IconButton onClick={() => handleDeleteWallet(wallet.id)} color="error"><DeleteIcon /></IconButton>
+                      </>
+                    ) : (
+                      <IconButton onClick={() => handleRestoreWallet(wallet.id)} color="primary"><RestoreIcon /></IconButton>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
 
       {/* Add/Edit Wallet Dialog */}
@@ -289,6 +267,7 @@ export default function WalletsPage() {
         <DialogTitle>
           {editingWallet ? 'Edit Wallet' : 'Create New Wallet'}
         </DialogTitle>
+
         <DialogContent>
           <TextField
             autoFocus
@@ -301,19 +280,23 @@ export default function WalletsPage() {
             helperText={errors.name}
             sx={{ mt: 1 }}
           />
-          <TextField
-            margin="dense"
-            label="Initial Balance"
-            type="number"
-            fullWidth
-            value={newWallet.balance}
-            onChange={(e) => setNewWallet({
-              ...newWallet, 
-              balance: e.target.value === '' ? 0 : Number(e.target.value)
-            })}
-            error={!!errors.balance}
-            helperText={errors.balance}
-          />
+
+          {!editingWallet && (
+            <TextField
+              margin="dense"
+              label="Initial Balance"
+              type="number"
+              fullWidth
+              value={newWallet.balance}
+              onChange={(e) => setNewWallet({
+                ...newWallet, 
+                balance: e.target.value === '' ? 0 : Number(e.target.value)
+              })}
+              error={!!errors.balance}
+              helperText={errors.balance}
+            />
+          )}
+
           <FormControl fullWidth margin="dense">
             <InputLabel>Currency</InputLabel>
             <Select
@@ -328,12 +311,14 @@ export default function WalletsPage() {
             </Select>
           </FormControl>
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
           <Button onClick={handleCreateOrUpdateWallet} variant="contained">
             {editingWallet ? 'Update' : 'Create'}
           </Button>
         </DialogActions>
+        
       </Dialog>
 
       {/* Snackbar for notifications */}

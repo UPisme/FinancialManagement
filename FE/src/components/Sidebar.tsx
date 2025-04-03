@@ -50,7 +50,6 @@ export default function Sidebar({ open, onToggle }: SidebarProps) {
     { text: 'Goals', icon: <SavingsGoalIcon />, path: '/dashboard/goals' },
     { text: 'Budgets', icon: <BudgetIcon />, path: '/dashboard/budgets' },
     { text: 'Reports', icon: <BarChartIcon />, path: '/dashboard/reports' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/dashboard/settings' },
   ];
 
   const drawer = (

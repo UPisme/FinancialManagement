@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             }),
           }}
         >
-          <Toolbar /> {/* This creates space below the fixed AppBar */}
+          <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             {children}
           </Container>

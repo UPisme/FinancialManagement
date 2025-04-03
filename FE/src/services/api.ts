@@ -93,9 +93,6 @@ export const walletService = {
   createWallet: async (data: { name: string; balance: number; currency: string }) => {
     try {
       const response = await api.post('/wallets/create', data);
-      if (!response.data.wallet?.id) {
-        throw new Error('API returned wallet without ID');
-      }
       return response.data.wallet;
     } catch (error) {
       console.error('API Error:', error);
@@ -104,12 +101,9 @@ export const walletService = {
   },
 
   // Update wallet
-  updateWallet: async (id: string, data: { name: string; balance: number; currency: string }) => {
+  updateWallet: async (id: string, data: { name: string; currency: string }) => {
     try {
       const response = await api.put(`/wallets/update/${id}`, data);
-      if (!response.data.wallet?.id) {
-        throw new Error('API returned wallet without ID');
-      }
       return response.data.wallet;
     } catch (error) {
       console.error('API Error:', error);
@@ -137,5 +131,74 @@ export const walletService = {
     }
   }
 };
+
+
+// Categories
+export const categoryService = {
+  // Get active categories
+  getCategories: async () => {
+    try {
+      const response = await api.get('/categories/');
+      return response.data.categories || [];
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Get deleted categories
+  getDeletedCategories: async () => {
+    try {
+      const response = await api.get('/categories/deleted');
+      return response.data.deleted_categories|| []; 
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Create new category
+  createCategory: async (data: { name: string }) => {
+    try {
+      const response = await api.post('/categories/create', data);
+      return response.data.category;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Update category
+  updateCategory: async (id: string, data: { name: string }) => {
+    try {
+      const response = await api.put(`/categories/update/${id}`, data);
+      return response.data.category;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Soft delete category
+  deleteCategory: async (id: string) => {
+    try {
+      await api.patch(`/categories/soft_delete/${id}`);
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Restore category
+  restoreCategory: async (id: string) => {
+    try {
+      await api.patch(`/categories/restore/${id}`);
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  }
+};
+
 
 export default api;

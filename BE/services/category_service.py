@@ -56,8 +56,10 @@ class CategoryService:
             logger.info(f'Category created successfully for user ID {user_id}')
             return {
                 'message': 'Category created successfully',
-                'id': new_category.id,
-                'name': new_category.name,
+                'category': {
+                    'id': new_category.id,
+                    'name': new_category.name
+                },
                 'status_code': 201
             }
             
@@ -93,16 +95,16 @@ class CategoryService:
     def get_deleted_categories_service(user_id, page=1, per_page=10):
         try:
             # Phân trang
-            categories = Category.query.filter_by(user_id=user_id, is_deleted=True).paginate(page=page, per_page=per_page, error_out=False)
-            categories_list = [{'id': c.id, 'name': c.name} for c in categories.items]
+            deleted_categories = Category.query.filter_by(user_id=user_id, is_deleted=True).paginate(page=page, per_page=per_page, error_out=False)
+            deleted_categories_list = [{'id': c.id, 'name': c.name} for c in deleted_categories.items]
             
             # Trả về danh sách category đã xoá
             return {
-                'categories': categories_list,
-                'page': categories.page,
-                'per_page': categories.per_page,
-                'total_pages': categories.pages,
-                'total_items': categories.total,
+                'deleted_categories': deleted_categories_list,
+                'page': deleted_categories.page,
+                'per_page': deleted_categories.per_page,
+                'total_pages': deleted_categories.pages,
+                'total_items': deleted_categories.total,
                 'status_code': 200
             }
         
@@ -142,11 +144,6 @@ class CategoryService:
             if not category:
                 logger.warning(f'Category ID {category_id} not found for user ID {user_id}')
                 return {'message': 'Category not found', 'status_code': 404}
-            
-            # Kiểm tra goal đã bị xóa chưa
-            if category.is_deleted:
-                logger.warning(f'Category ID {category_id} is deleted and cannot be updated')
-                return {'message': 'Category is deleted and cannot be updated', 'status_code': 400}
 
             # Kiểm tra trùng tên            
             if 'name' in data:
@@ -162,8 +159,10 @@ class CategoryService:
             logger.info(f'Category ID {category_id} updated successfully for user ID {user_id}')
             return {
                 'message': 'Category updated successfully',
-                'id': category.id,
-                'name': category.name,
+                'category': {
+                    'id': category.id,
+                    'name': category.name
+                },
                 'status_code': 200
             }
 
