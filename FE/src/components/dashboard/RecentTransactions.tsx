@@ -32,7 +32,7 @@ const transactions = [
     amount: -85.75,
     date: '2025-03-28',
     category: 'Shopping',
-    icon: <ShoppingCartIcon />
+    // icon: <ShoppingCartIcon />
   },
   {
     id: 2,
@@ -40,7 +40,7 @@ const transactions = [
     amount: -42.50,
     date: '2025-03-27',
     category: 'Food',
-    icon: <FastfoodIcon />
+    // icon: <FastfoodIcon />
   },
   {
     id: 3,
@@ -48,7 +48,7 @@ const transactions = [
     amount: 3500.00,
     date: '2025-03-25',
     category: 'Income',
-    icon: <HomeIcon />
+    // icon: <HomeIcon />
   },
   {
     id: 4,
@@ -56,7 +56,7 @@ const transactions = [
     amount: -45.30,
     date: '2025-03-24',
     category: 'Transportation',
-    icon: <DirectionsCarIcon />
+    // icon: <DirectionsCarIcon />
   },
   {
     id: 5,
@@ -64,7 +64,7 @@ const transactions = [
     amount: -120.00,
     date: '2025-03-23',
     category: 'Healthcare',
-    icon: <LocalHospitalIcon />
+    // icon: <LocalHospitalIcon />
   }
 ];
 
@@ -109,11 +109,11 @@ export default function RecentTransactions() {
         {transactions.map((transaction, index) => (
           <React.Fragment key={transaction.id}>
             <ListItem alignItems="flex-start" sx={{ py: 1.5 }}>
-              <ListItemAvatar>
+              {/* <ListItemAvatar>
                 <Avatar sx={{ bgcolor: getCategoryColor(transaction.category, theme) }}>
                   {transaction.icon}
                 </Avatar>
-              </ListItemAvatar>
+              </ListItemAvatar> */}
               <ListItemText
                 primary={transaction.title}
                 secondary={

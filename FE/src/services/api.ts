@@ -65,7 +65,7 @@ export const authService = {
 };
 
 
-// wallets
+// Wallets
 export const walletService = {
   // Get active wallets
   getWallets: async () => {
@@ -193,6 +193,76 @@ export const categoryService = {
   restoreCategory: async (id: string) => {
     try {
       await api.patch(`/categories/restore/${id}`);
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  }
+};
+
+
+// Goals
+export const goalService = {
+  // Get active goals
+  getGoals: async () => {
+    try {
+      const response = await api.get('/goals/');
+      return response.data.goals || [];
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Get deleted goals
+  getDeletedGoals: async () => {
+    try {
+      const response = await api.get('/goals/deleted');
+      return response.data.deleted_goals|| []; 
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Create new goal
+  createGoal: async (data: { name: string; target_amount: number; saved_amount: number; deadline: string }) => {
+    try {
+      const response = await api.post('/goals/create', data);
+      return response.data.goal;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Update goal
+  updateGoal: async (id: string, data: { name: string; target_amount: number; saved_amount: number; deadline: string }) => {
+    try {
+      const response = await api.put(`/goals/update/${id}`, data);
+      console.log(data)
+      console.log(response.data.goal)
+      return response.data.goal;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Soft delete goal
+  deleteGoal: async (id: string) => {
+    try {
+      await api.patch(`/goals/soft_delete/${id}`);
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  // Restore goal
+  restoreGoal: async (id: string) => {
+    try {
+      await api.patch(`/goals/restore/${id}`);
     } catch (error) {
       console.error('API Error:', error);
       throw error;

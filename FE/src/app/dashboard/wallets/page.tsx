@@ -5,7 +5,6 @@ import {
   Typography, 
   Button, 
   useTheme,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -20,17 +19,13 @@ import {
   Snackbar,
   Alert,
   AlertColor,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  InputAdornment
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon, Restore as RestoreIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useAuth } from '@/context/AuthContext';
 import { walletService } from '@/services/api';
+import { ReusableTable, Column } from '@/components/ReusableTable';
+import { formatNumber } from '@/utils/format';
 
 interface Wallet {
   id: string;
@@ -191,6 +186,20 @@ export default function WalletsPage() {
     setCurrentTab(newValue);
   };
 
+  const walletColumns: Column[] = [
+    { id: 'name', label: 'Wallet Name', align: 'center' },
+    { 
+      id: 'balance', 
+      label: 'Balance', 
+      align: 'center',
+      render: (wallet: Wallet) => formatNumber(wallet.balance ?? 0)
+    },
+    { id: 'currency', label: 'Currency', align: 'center' },
+    { id: 'actions', label: 'Actions', align: 'center' }
+  ];
+
+  const [displayBalance, setDisplayBalance] = useState(formatNumber(newWallet.balance));
+
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -223,43 +232,39 @@ export default function WalletsPage() {
           <Typography>Loading...</Typography>
         </Box>
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Wallet Name</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Balance</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Currency</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(currentTab === 0 ? wallets : deletedWallets).map((wallet) => (
-                <TableRow key={wallet.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                  <TableCell component="th" scope="row" sx={{ textAlign: 'center' }}>
-                    {wallet.name}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: 'center' }}>
-                    {(wallet.balance ?? 0).toFixed(2)}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: 'center' }}>
-                    {wallet.currency}
-                  </TableCell>
-                  <TableCell sx={{ textAlign: 'center' }}>
-                    {currentTab === 0 ? (
-                      <>
-                        <IconButton onClick={() => handleOpenEditDialog(wallet)} color="primary"><EditIcon /></IconButton>
-                        <IconButton onClick={() => handleDeleteWallet(wallet.id)} color="error"><DeleteIcon /></IconButton>
-                      </>
-                    ) : (
-                      <IconButton onClick={() => handleRestoreWallet(wallet.id)} color="primary"><RestoreIcon /></IconButton>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <ReusableTable<Wallet>
+          columns={walletColumns}
+          data={currentTab === 0 ? wallets : deletedWallets}
+          currentTab={currentTab}
+          getCellValue={(wallet, columnId) => {
+            switch (columnId) {
+              case 'name': return wallet.name;
+              case 'currency': return wallet.currency;
+              default: return null;
+            }
+          }}
+          getRowActions={(wallet) => ({
+            primaryActions: [
+              {
+                icon: <EditIcon />,
+                color: 'primary',
+                onClick: () => handleOpenEditDialog(wallet)
+              },
+              {
+                icon: <DeleteIcon />,
+                color: 'error',
+                onClick: () => handleDeleteWallet(wallet.id)
+              }
+            ],
+            secondaryActions: [
+              {
+                icon: <RestoreIcon />,
+                color: 'primary',
+                onClick: () => handleRestoreWallet(wallet.id)
+              }
+            ]
+          })}
+        />
       )}
 
       {/* Add/Edit Wallet Dialog */}
@@ -294,6 +299,15 @@ export default function WalletsPage() {
               })}
               error={!!errors.balance}
               helperText={errors.balance}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {newWallet.currency === 'VND' ? '₫' : 
+                     newWallet.currency === 'USD' ? '$' : 
+                     newWallet.currency === 'CNY' ? '¥' : '₩'}
+                  </InputAdornment>
+                ),
+              }}
             />
           )}
 

@@ -42,7 +42,7 @@ class Goal(db.Model):
     name = db.Column(db.String(200), nullable=False)
     target_amount = db.Column(db.Numeric(15,2), nullable=False)
     saved_amount = db.Column(db.Numeric(15,2), default=0)
-    deadline = db.Column(db.Date, nullable=True)
+    deadline = db.Column(db.Date, nullable=False)
     is_deleted = db.Column(db.Boolean, default=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     transactions = db.relationship('Transaction', backref='goal', lazy=True)
@@ -83,7 +83,7 @@ class Budget(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     amount = db.Column(db.Numeric(15,2), nullable=False, default=0)
     start_date = db.Column(db.Date, nullable=False, default=datetime.date.today)
-    end_date = db.Column(db.Date, nullable=True)
+    end_date = db.Column(db.Date, nullable=False)
     is_deleted = db.Column(db.Boolean, default=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
 

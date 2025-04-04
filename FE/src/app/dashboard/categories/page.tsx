@@ -5,7 +5,6 @@ import {
   Typography, 
   Button,
   useTheme, 
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -15,18 +14,12 @@ import {
   Tab,
   Snackbar,
   Alert,
-  AlertColor,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  AlertColor
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon, Restore as RestoreIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useAuth } from '@/context/AuthContext';
 import { categoryService } from '@/services/api';
+import { ReusableTable, Column } from '@/components/ReusableTable';
 
 interface Category {
   id: string;
@@ -43,6 +36,7 @@ export default function CategoriesPage() {
   const [currentTab, setCurrentTab] = useState(0);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [newCategory, setNewCategory] = useState({ name: '' });
+  const [errors, setErrors] = useState({ name: '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
@@ -69,7 +63,27 @@ export default function CategoriesPage() {
     setSnackbar({ open: true, message, severity });
   };
 
+  const validateForm = () => {
+    const newErrors = { name: '' };
+    let isValid = true;
+
+    if (!newCategory.name.trim()) {
+      newErrors.name = 'Category name is required';
+      isValid = false;
+    }
+
+    if (categories.some(c => c.name === newCategory.name && c.id !== editingCategory?.id)) {
+      newErrors.name = 'Category name already exists';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleCreateOrUpdateCategory = async () => {
+    if (!validateForm()) return;
+
     try {
       if (editingCategory) {
         await categoryService.updateCategory(editingCategory.id, newCategory);
@@ -123,6 +137,11 @@ export default function CategoriesPage() {
     setEditingCategory(null);
   };
 
+  const categoryColumns: Column[] = [
+    { id: 'name', label: 'Category Name', align: 'center' },
+    { id: 'actions', label: 'Actions', align: 'center' }
+  ];
+
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -153,39 +172,52 @@ export default function CategoriesPage() {
           <Typography>Loading...</Typography>
         </Box>
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(currentTab === 0 ? categories : deletedCategories).map((category) => (
-                <TableRow key={category.id} hover>
-                  <TableCell sx={{ textAlign: 'center' }}>{category.name}</TableCell>
-                  <TableCell sx={{ textAlign: 'center' }}>
-                    {currentTab === 0 ? (
-                      <>
-                        <IconButton onClick={() => handleOpenEditDialog(category)} color="primary"><EditIcon /></IconButton>
-                        <IconButton onClick={() => handleDeleteCategory(category.id)} color="error"><DeleteIcon /></IconButton>
-                      </>
-                    ) : (
-                      <IconButton onClick={() => handleRestoreCategory(category.id)} color="primary"><RestoreIcon /></IconButton>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <ReusableTable<Category>
+          columns={categoryColumns}
+          data={currentTab === 0 ? categories : deletedCategories}
+          currentTab={currentTab}
+          getCellValue={(category, columnId) => {
+            switch (columnId) {
+              case 'name': return category.name;
+              default: return null;
+            }
+          }}
+          getRowActions={(category) => ({
+            primaryActions: [
+              {
+                icon: <EditIcon />,
+                color: 'primary',
+                onClick: () => handleOpenEditDialog(category)
+              },
+              {
+                icon: <DeleteIcon />,
+                color: 'error',
+                onClick: () => handleDeleteCategory(category.id)
+              }
+            ],
+            secondaryActions: [
+              {
+                icon: <RestoreIcon />,
+                color: 'primary',
+                onClick: () => handleRestoreCategory(category.id)
+              }
+            ]
+          })}
+        />
       )}
 
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>{editingCategory ? 'Edit Category' : 'Create New Category'}</DialogTitle>
         <DialogContent>
-          <TextField autoFocus margin="dense" label="Category Name" fullWidth value={newCategory.name} onChange={(e) => setNewCategory({ name: e.target.value })} />
+          <TextField 
+            autoFocus
+            margin="dense"
+            label="Category Name"
+            fullWidth value={newCategory.name}
+            onChange={(e) => setNewCategory({ name: e.target.value })}
+            error={!!errors.name}
+            helperText={errors.name}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>

@@ -17,7 +17,7 @@ class GoalService:
 
         try:
             # Kiểm tra giá trị thiếu
-            if not data or not data.get('name') or not data.get('target_amount'):
+            if not data or not data.get('name') or not data.get('target_amount') or not data.get('deadline'):
                 logger.warning(f'Missing required fields')
                 return {'message': 'Missing required fields', 'status_code': 400}
             
@@ -45,7 +45,7 @@ class GoalService:
             # Kiểm tra goal đã soft delete
             deleted_goal = Goal.query.filter_by(user_id=user_id, name=data['name'], is_deleted=True).first()
 
-            if deleted_goal or not force_create:
+            if deleted_goal and not force_create:
                 logger.info(f'Goal "{data["name"]}" was soft deleted, asking user for restore')
                 return {
                     'message': 'Goal previously deleted. Do you want to restore it?',
@@ -60,7 +60,7 @@ class GoalService:
                 name = data['name'],
                 target_amount = data['target_amount'],
                 saved_amount = data.get('saved_amount', 0),
-                deadline = deadline if data.get('deadline') else datetime.now().date(),
+                deadline = deadline,
                 is_deleted = False,
                 deleted_at = None
             )
@@ -97,9 +97,9 @@ class GoalService:
             goals_list = [{
                 'id': g.id,
                 'name': g.name,
-                'target_amount': g.target_amount,
-                'saved_amount': g.saved_amount,
-                'deadline': g.deadline
+                'target_amount': float(g.target_amount),
+                'saved_amount': float(g.saved_amount),
+                'deadline': g.deadline.isoformat()
             } for g in goals.items]
             
             # Trả về danh sách goal
@@ -125,14 +125,14 @@ class GoalService:
             deleted_goals_list = [{
                 'id': g.id,
                 'name': g.name,
-                'target_amount': g.target_amount,
-                'saved_amount': g.saved_amount,
-                'deadline': g.deadline
+                'target_amount': float(g.target_amount),
+                'saved_amount': float(g.saved_amount),
+                'deadline': g.deadline.isoformat()
             } for g in deleted_goals.items]
             
             # Trả về danh sách goal đã xoá
             return {
-                'goals': deleted_goals_list,
+                'deleted_goals': deleted_goals_list,
                 'page': deleted_goals.page,
                 'per_page': deleted_goals.per_page,
                 'total_pages': deleted_goals.pages,
@@ -179,11 +179,6 @@ class GoalService:
             if not goal:
                 logger.warning(f'Goal ID {goal_id} not found for user ID {user_id}')
                 return {'message': 'Goal not found', 'status_code': 404}
-
-            # Kiểm tra goal đã bị xóa chưa
-            if goal.is_deleted:
-                logger.warning(f'Goal ID {goal_id} is deleted and cannot be updated')
-                return {'message': 'Goal is deleted and cannot be updated', 'status_code': 400}
         
             # Kiểm tra trùng tên
             if 'name' in data:
@@ -213,7 +208,7 @@ class GoalService:
                 if deadline < datetime.now().date():
                     logger.warning(f'Invalid deadline')
                     return {'message': 'Deadline must be in the future', 'status_code': 400}          
-                goal.deadline = data['deadline']
+                goal.deadline = deadline
 
             # Commit vào db và trả về
             db.session.commit()
@@ -296,7 +291,7 @@ class GoalService:
                     'name': goal.name,
                     'target_amount': float(goal.target_amount),
                     'saved_amount': float(goal.saved_amount),
-                    'deadline': goal.deadline.isoformat(),
+                    'deadline': goal.deadline.isoformat() if goal.deadline else None,
                     'progress': round(progress, 2),  # Tiến độ (%)
                     'is_achieved': is_achieved,  # Đã đạt được mục tiêu chưa
                     'days_remaining': days_remaining,  # Số ngày còn lại
